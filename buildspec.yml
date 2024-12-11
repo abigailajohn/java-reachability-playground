@@ -5,4 +5,4 @@ phases:
       java: latest
   build:
     commands:
-      - mvn verify sonar:sonar -Dsonar.projectKey=techstarrr_django -Dsonar.organization=techstarrr -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=5f1e232e9677ae441587b6ef2fff15e646ceed73
+      - mvn verify sonar:sonar -Dsonar.projectKey=techstarrr_django -Dsonar.organization=techstarrr -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c4a0cd709385db62a9612dd90f15978b61ddd012
