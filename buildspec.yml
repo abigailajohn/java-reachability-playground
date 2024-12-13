@@ -1,8 +1,37 @@
 version: 0.2
+env:
+    secrets-manager:
+      TOKEN: firstSecret:SonarToken
 phases:
+  install:
+    runtime-versions:
+      java: latest
   build:
     commands:
-    - |-
+
+#Static Application Security Scan (SAST scan) using SonarCloud
+     - mvn verify sonar:sonar -Dsonar.projectKey=techstarrr_django -Dsonar.organization=techstarrr -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$TOKEN 
+
+#Quality Gates for Static Application Security Scan(SAST) using SonarCloud
+
+     - sleep 5
+     - |- 
+        quality_status=$(curl -s -u $TOKEN: https://sonarcloud.io/api/qualitygates/project_status?projectKey=techstarrr_django | jq -r '.projectStatus.status')
+        echo "SonarCloud analysistatus is $quality_status"; 
+#        if [ $quality_status = "ERROR" ] ; then exit 1;fi
+
+#Software Composition Analysis Scan (SCA scan) using Snyk
+
+     - |-
+          apt-get update
+          apt-get -y install maven 
+          SNYK_TOKEN=412fa9f1-ef67-4209-a3f7-ee062f4c4f82
+          export SNYK_TOKEN
+          mvn snyk:test -fn 
+
+#Dynamic Application Security Scan (DAST scan) using OWASP ZAP
+
+     - |-
         apt-get update
         apt-get -y install wget
         apt-get -y install default-jdk
@@ -10,6 +39,9 @@ phases:
         tar -xvf ZAP_2.14.0_Linux.tar.gz
         cd ZAP_2.14.0
         ./zap.sh -cmd -quickurl https://www.example.com -quickprogress -quickout ../zap_report.html 
+        
+#Storing DAST Reports in S3 bucket
+
 artifacts:
   files:
     - zap_report.html
